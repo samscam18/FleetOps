@@ -3,8 +3,8 @@ package com.example.fleetflow;
 import org.springframework.boot.CommandLineRunner;  // ✅ correct import
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.example.fleetflow.simulation.SimulationRunner;
 
-import com.example.fleetflow.service.SimulationRunner;
 
 @SpringBootApplication
 public class FleetFlowApplication implements CommandLineRunner {

@@ -1,27 +1,46 @@
 package com.example.fleetflow.model;
 
-
-
 public class DeliveryTask {
-    private String packageId;
+    private String id;
     private String destination;
-    private int distanceKm;
-    private Route route;
-    private long etaMinutes;
-    
-    public DeliveryTask(String packageId, String destination, int distanceKm) {
-        this.packageId = packageId;
+    private int distance;  // ✅ Missing before
+    private String status = "PENDING";
+    private String assignedDriver;
+
+    public DeliveryTask(String id, String destination, int distance) {
+        this.id = id;
         this.destination = destination;
-        this.distanceKm = distanceKm;
+        this.distance = distance;
+    }
+    
+
+
+    public String getDestination() {
+        return destination;
+    }
+    
+    // ✅ Needed methods
+    public String getPackageId() {
+        return id;
     }
 
-    public String getPackageId() { return packageId; }
-    public String getDestination() { return destination; }
-    public int getDistanceKm() { return distanceKm; }
+    public int getDistanceKm() {
+        return distance;
+    }
 
-    public Route getRoute() { return route; }
-    public void setRoute(Route route) { this.route = route; }
+    public String getAssignedDriver() {
+        return assignedDriver;
+    }
 
-    public long getEtaMinutes() { return etaMinutes; }
-    public void setEtaMinutes(long etaMinutes) { this.etaMinutes = etaMinutes; }
+    public void setAssignedDriver(String assignedDriver) {
+        this.assignedDriver = assignedDriver;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

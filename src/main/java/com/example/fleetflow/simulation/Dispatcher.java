@@ -1,59 +1,40 @@
 package com.example.fleetflow.simulation;
 
 import com.example.fleetflow.model.DeliveryTask;
-import com.example.fleetflow.model.Route;
-import com.example.fleetflow.model.Vehicle;
-import com.example.fleetflow.service.RouteService;
-import com.example.fleetflow.service.VehicleService;
+import com.example.fleetflow.model.Driver;
+import com.example.fleetflow.service.DeliveryService;
+import com.example.fleetflow.service.DriverService;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class Dispatcher {
 
-    private final VehicleService vehicleService;
-    private final RouteService routeService;
+    private final DeliveryService deliveryService;
+    private final DriverService driverService;
 
-    public Dispatcher(VehicleService vehicleService, RouteService routeService) {
-        this.vehicleService = vehicleService;
-        this.routeService = routeService;
+    public Dispatcher(DeliveryService deliveryService, DriverService driverService) {
+        this.deliveryService = deliveryService;
+        this.driverService = driverService;
     }
 
-    public void dispatchTasks(List<DeliveryTask> tasks) {
-        for (DeliveryTask task : tasks) {
-            Optional<Vehicle> sameCity = vehicleService.getAvailableVehicles().stream()
-                    .filter(v -> v.getLocation().equalsIgnoreCase(task.getDestination()))
-                    .findFirst();
+    /**
+     * Assigns pending delivery tasks to available drivers.
+     */
+    public void dispatch() {
+        List<DeliveryTask> pendingTasks = deliveryService.getPendingTasks();
 
-            Vehicle vehicle = sameCity.orElseGet(() ->
-                    vehicleService.getAvailableVehicles().stream()
-                            // (Optional) put your own selection strategy here
-                            .min(Comparator.comparing(Vehicle::getId))
-                            .orElse(null)
-            );
-
-            if (vehicle == null) {
-                System.out.println("No available vehicle for " + task.getPackageId());
-                continue;
+        for (DeliveryTask task : pendingTasks) {
+            Driver driver = driverService.getAvailableDriver();
+            if (driver != null) {
+                deliveryService.markAssigned(task, driver.getId());
+                driverService.reserve(driver);
+                System.out.println("✅ Task " + task.getPackageId() +
+                        " assigned to Driver " + driver.getId());
+            } else {
+                System.out.println("⚠️ No available drivers for task " + task.getPackageId());
             }
-
-            Route route = routeService.getRoute(vehicle.getLocation(), task.getDestination());
-            long eta = routeService.estimateEtaMinutes(route.getDistanceKm(), vehicle.getAvgSpeedKmph());
-
-            task.setRoute(route);
-            task.setEtaMinutes(eta);
-
-            System.out.printf(
-                "Assigned %s to Vehicle %s | Route: %s | ETA: %d min%n",
-                task.getPackageId(), vehicle.getId(), route, eta
-            );
-
-            // Here you likely already submit to a thread pool; keep your existing executor code.
-            // Example (pseudo):
-            // executor.submit(() -> simulateDelivery(task, vehicle));
         }
     }
 }
