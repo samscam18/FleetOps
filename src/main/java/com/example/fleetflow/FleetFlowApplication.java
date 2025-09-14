@@ -1,8 +1,9 @@
 package com.example.fleetflow;
 
-import org.springframework.boot.CommandLineRunner;  // ✅ correct import
+import org.springframework.boot.CommandLineRunner;  
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import com.example.fleetflow.simulation.SimulationRunner;
 
 
@@ -21,6 +22,6 @@ public class FleetFlowApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        simulationRunner.startSimulation(); // ✅ matches your method name
+        simulationRunner.startSimulation();
     }
 }

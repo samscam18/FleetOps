@@ -1,13 +1,14 @@
 package com.example.fleetflow.simulation;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.example.fleetflow.model.DeliveryTask;
 import com.example.fleetflow.model.Driver;
 import com.example.fleetflow.service.DeliveryService;
 import com.example.fleetflow.service.DriverService;
-import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class SimulationRunner {
@@ -23,12 +24,10 @@ public class SimulationRunner {
     }
 
     public void startSimulation() {
-        // Create sample drivers
         driverService.addDriver(new Driver("D1"));
         driverService.addDriver(new Driver("D2"));
         driverService.addDriver(new Driver("D3"));
 
-        // Create sample delivery tasks
         List<DeliveryTask> tasks = Arrays.asList(
                 new DeliveryTask("PKG001", "Mumbai", 10),
                 new DeliveryTask("PKG002", "Pune", 20),
@@ -37,10 +36,8 @@ public class SimulationRunner {
                 new DeliveryTask("PKG005", "Hyderabad", 25)
         );
 
-        // Add tasks to service
-        tasks.forEach(deliveryService::add);
+        tasks.forEach(deliveryService::addTask);
 
-        // Start dispatching
         dispatcher.dispatch();
     }
 }

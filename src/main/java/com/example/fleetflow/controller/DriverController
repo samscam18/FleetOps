@@ -1,0 +1,41 @@
+package com.example.fleetflow.controller;
+
+import com.example.fleetflow.model.Driver;
+import com.example.fleetflow.service.DriverService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/drivers")
+public class DriverController {
+
+    private final DriverService driverService;
+
+    public DriverController(DriverService driverService) {
+        this.driverService = driverService;
+    }
+
+    @PostMapping
+    public ResponseEntity<String> addDriver(@RequestBody Driver driver) {
+        driverService.addDriver(driver);
+        return ResponseEntity.ok("✅ Driver added: " + driver.getName());
+    }
+
+    @GetMapping
+    public List<Driver> getAllDrivers() {
+        return driverService.getAllDrivers();
+    }
+
+    @GetMapping("/available")
+    public List<Driver> getAvailableDrivers() {
+        return driverService.getAvailableDrivers();
+    }
+
+    @PutMapping("/{id}/release")
+    public ResponseEntity<String> releaseDriver(@PathVariable String id) {
+        driverService.releaseDriver(id);
+        return ResponseEntity.ok("♻️ Driver " + id + " released and available");
+    }
+}

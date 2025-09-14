@@ -1,39 +1,61 @@
 package com.example.fleetflow.simulation;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.example.fleetflow.model.DeliveryTask;
 import com.example.fleetflow.model.Driver;
+import com.example.fleetflow.model.Vehicle;
 import com.example.fleetflow.service.DeliveryService;
 import com.example.fleetflow.service.DriverService;
-import org.springframework.stereotype.Component;
+import com.example.fleetflow.service.VehicleService;
 
-import java.util.List;
 
-@Component
+@Service
 public class Dispatcher {
 
-    private final DeliveryService deliveryService;
     private final DriverService driverService;
+    private final DeliveryService deliveryService;
+    private final VehicleService vehicleService;
 
-    public Dispatcher(DeliveryService deliveryService, DriverService driverService) {
-        this.deliveryService = deliveryService;
+    public Dispatcher(DriverService driverService, DeliveryService deliveryService, VehicleService vehicleService) {
         this.driverService = driverService;
+        this.deliveryService = deliveryService;
+        this.vehicleService = vehicleService;
     }
 
-    /**
-     * Assigns pending delivery tasks to available drivers.
-     */
     public void dispatch() {
-        List<DeliveryTask> pendingTasks = deliveryService.getPendingTasks();
+        List<DeliveryTask> tasks = deliveryService.getAllTasks();
+        dispatchTasks(tasks);
+    }
 
-        for (DeliveryTask task : pendingTasks) {
-            Driver driver = driverService.getAvailableDriver();
-            if (driver != null) {
-                deliveryService.markAssigned(task, driver.getId());
-                driverService.reserve(driver);
-                System.out.println("✅ Task " + task.getPackageId() +
-                        " assigned to Driver " + driver.getId());
-            } else {
-                System.out.println("⚠️ No available drivers for task " + task.getPackageId());
+    public void dispatchTasks(List<DeliveryTask> tasks) {
+        for (DeliveryTask task : tasks) {
+            if ("PENDING".equals(task.getStatus())) { // ✅ only assign new ones
+                Optional<Driver> driverOpt = driverService.getAvailableDriver();
+                Optional<Vehicle> vehicleOpt = vehicleService.getAvailableVehicles().stream().findFirst();
+
+                if (driverOpt.isPresent() && vehicleOpt.isPresent()) {
+                    Driver driver = driverOpt.get();
+                    Vehicle vehicle = vehicleOpt.get();
+
+                    // Reserve resources
+                    driverService.reserve(driver);
+                    vehicleService.reserveVehicle(vehicle.getId()); // ✅ FIXED
+
+                    // Update task info
+                    task.setAssignedDriver(driver.getId());
+                    task.setAssignedVehicle(vehicle.getId());
+                    task.setStatus("IN_PROGRESS");
+
+                    System.out.println("🚚 Assigned Driver " + driver.getId() +
+                                       " + Vehicle " + vehicle.getId() +
+                                       " to Task " + task.getId());
+                } else {
+                    System.out.println("⚠️ No available resources for Task " + task.getId());
+                }
             }
         }
     }

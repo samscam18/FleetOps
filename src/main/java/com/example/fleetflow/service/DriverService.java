@@ -1,11 +1,12 @@
 package com.example.fleetflow.service;
 
-import com.example.fleetflow.model.Driver;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.example.fleetflow.model.Driver;
 
 @Service
 public class DriverService {
@@ -16,26 +17,34 @@ public class DriverService {
         drivers.add(driver);
     }
 
-    // Return a single available driver (first one found)
-    public Driver getAvailableDriver() {
-        return drivers.stream()
-                .filter(Driver::isAvailable)
-                .findFirst()
-                .orElse(null);
+    public List<Driver> getAllDrivers() {
+        return drivers;
     }
 
-    // If you still need all available drivers
+    
     public List<Driver> getAvailableDrivers() {
         return drivers.stream()
                 .filter(Driver::isAvailable)
-                .collect(Collectors.toList());
+                .toList();
     }
 
+
+    public Optional<Driver> getAvailableDriver() {
+        return drivers.stream()
+                .filter(Driver::isAvailable)
+                .findFirst();
+    }
+
+    
     public void reserve(Driver driver) {
         driver.setAvailable(false);
     }
 
-    public void release(Driver driver) {
-        driver.setAvailable(true);
+    public void releaseDriver(String id) {
+        Optional<Driver> driver = drivers.stream()
+                .filter(d -> d.getId().equals(id))
+                .findFirst();
+
+        driver.ifPresent(d -> d.setAvailable(true));
     }
 }

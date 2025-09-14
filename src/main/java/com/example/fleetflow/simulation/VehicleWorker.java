@@ -15,9 +15,9 @@ public class VehicleWorker implements Runnable {
         System.out.println(Thread.currentThread().getName() +
                 " delivering package " + task.getPackageId() +
                 " to " + task.getDestination() +
-                " (" + task.getDistanceKm() + " km)");
+                " (" + task.getDistance() + " km)");
         try {
-            Thread.sleep(task.getDistanceKm() * 100L); // simulate travel
+            Thread.sleep(task.getDistance() * 100L); // simulate travel
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

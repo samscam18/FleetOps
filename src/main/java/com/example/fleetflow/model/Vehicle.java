@@ -6,6 +6,7 @@ public class Vehicle {
     private int capacity;
     private boolean available;
     private final int avgSpeedKmph;
+   
 
     public Vehicle(String id, String location, int capacity) {
         this(id, location, capacity, 40); // default 40 km/h
